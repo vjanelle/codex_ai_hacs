@@ -68,6 +68,26 @@ Home Assistant runtime validation.
 
 ## Development
 
+### Dev Container
+
+This repository includes a full Home Assistant devcontainer. It builds a
+Home Assistant-style environment, clones Home Assistant Core into
+`/workspaces/home-assistant-core`, runs `script/setup`, and symlinks this
+integration into:
+
+```text
+/workspaces/home-assistant-core/config/custom_components/codex_ai
+```
+
+Open this repository in VS Code and choose **Reopen in Container**.
+
+Run Home Assistant from inside the container:
+
+```bash
+cd /workspaces/home-assistant-core
+hass -c config
+```
+
 Run local helper tests:
 
 ```bash
