@@ -2,11 +2,13 @@
   "domain": "codex_ai",
   "name": "Codex AI",
   "after_dependencies": ["assist_pipeline", "intent"],
-  "codeowners": [],
+  "codeowners": ["@vjanelle"],
   "config_flow": true,
   "dependencies": ["ai_task", "conversation", "stt", "tts"],
-  "documentation": "https://github.com/home-assistant/example-custom-config/tree/master/codex_ai_provider",
+  "documentation": "https://github.com/vjanelle/codex_ai_hacs",
+  "issue_tracker": "https://github.com/vjanelle/codex_ai_hacs/issues",
   "integration_type": "service",
   "iot_class": "cloud_polling",
-  "requirements": ["openai==2.21.0"]
+  "requirements": ["openai==2.21.0"],
+  "version": "0.1.0"
 }
