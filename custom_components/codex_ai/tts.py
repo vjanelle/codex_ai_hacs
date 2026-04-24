@@ -16,6 +16,7 @@ from homeassistant.components.tts import (
     TtsAudioType,
     Voice,
 )
+from homeassistant.config_entries import ConfigSubentry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
@@ -27,7 +28,9 @@ from .const import (
     DEFAULT_TTS_MODEL,
     DEFAULT_TTS_SPEED,
     DEFAULT_TTS_VOICE,
+    SUBENTRY_TTS,
 )
+from .entity import CodexBaseEntity
 from .runtime import CodexConfigEntry
 
 _LOGGER = logging.getLogger(__name__)
@@ -48,22 +51,25 @@ async def async_setup_entry(
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up TTS entities."""
-    async_add_entities([CodexTTSEntity(config_entry)])
+    entities = [
+        CodexTTSEntity(config_entry, subentry)
+        for subentry in config_entry.subentries.values()
+        if subentry.subentry_type == SUBENTRY_TTS
+    ]
+    for entity in entities:
+        async_add_entities([entity], config_subentry_id=entity.subentry.subentry_id)
 
 
-class CodexTTSEntity(TextToSpeechEntity):
+class CodexTTSEntity(TextToSpeechEntity, CodexBaseEntity):
     """Codex TTS entity."""
 
-    _attr_has_entity_name = True
-    _attr_name = "Codex TTS"
     _attr_supported_options = [ATTR_VOICE, ATTR_PREFERRED_FORMAT]
     _attr_supported_languages = ["en-US"]
     _attr_default_language = "en-US"
 
-    def __init__(self, entry: CodexConfigEntry) -> None:
+    def __init__(self, entry: CodexConfigEntry, subentry: ConfigSubentry) -> None:
         """Initialize the entity."""
-        self.entry = entry
-        self._attr_unique_id = f"{entry.entry_id}_tts"
+        CodexBaseEntity.__init__(self, entry, subentry)
 
     @callback
     def async_get_supported_voices(self, language: str) -> list[Voice]:

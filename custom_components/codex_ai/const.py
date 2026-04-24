@@ -21,3 +21,13 @@ DEFAULT_STT_MODEL = "gpt-4o-mini-transcribe"
 DEFAULT_TTS_MODEL = "gpt-4o-mini-tts"
 DEFAULT_TTS_VOICE = "marin"
 DEFAULT_TTS_SPEED = 1.0
+
+SUBENTRY_AI_TASK = "ai_task_data"
+SUBENTRY_CONVERSATION = "conversation"
+SUBENTRY_STT = "stt"
+SUBENTRY_TTS = "tts"
+
+DEFAULT_AI_TASK_NAME = "Codex AI Tasks"
+DEFAULT_CONVERSATION_NAME = "Codex AI"
+DEFAULT_STT_NAME = "Codex STT"
+DEFAULT_TTS_NAME = "Codex TTS"

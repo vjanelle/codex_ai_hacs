@@ -10,10 +10,12 @@ import wave
 from openai import OpenAIError
 
 from homeassistant.components import stt
+from homeassistant.config_entries import ConfigSubentry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from .const import CONF_STT_MODEL, DEFAULT_STT_MODEL
+from .const import CONF_STT_MODEL, DEFAULT_STT_MODEL, SUBENTRY_STT
+from .entity import CodexBaseEntity
 from .runtime import CodexConfigEntry
 
 _LOGGER = logging.getLogger(__name__)
@@ -36,19 +38,21 @@ async def async_setup_entry(
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up STT entities."""
-    async_add_entities([CodexSTTEntity(config_entry)])
+    entities = [
+        CodexSTTEntity(config_entry, subentry)
+        for subentry in config_entry.subentries.values()
+        if subentry.subentry_type == SUBENTRY_STT
+    ]
+    for entity in entities:
+        async_add_entities([entity], config_subentry_id=entity.subentry.subentry_id)
 
 
-class CodexSTTEntity(stt.SpeechToTextEntity):
+class CodexSTTEntity(stt.SpeechToTextEntity, CodexBaseEntity):
     """Codex STT entity."""
 
-    _attr_has_entity_name = True
-    _attr_name = "Codex STT"
-
-    def __init__(self, entry: CodexConfigEntry) -> None:
+    def __init__(self, entry: CodexConfigEntry, subentry: ConfigSubentry) -> None:
         """Initialize the entity."""
-        self.entry = entry
-        self._attr_unique_id = f"{entry.entry_id}_stt"
+        CodexBaseEntity.__init__(self, entry, subentry)
 
     @property
     def supported_languages(self) -> list[str]:

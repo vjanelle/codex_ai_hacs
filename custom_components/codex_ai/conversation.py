@@ -5,12 +5,21 @@ from __future__ import annotations
 from typing import Literal
 
 from homeassistant.components import conversation
+from homeassistant.config_entries import ConfigSubentry
 from homeassistant.const import MATCH_ALL
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import intent
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from .const import CONF_MODEL, CONF_REASONING_EFFORT, DEFAULT_MODEL, DEFAULT_REASONING_EFFORT, DOMAIN
+from .const import (
+    CONF_MODEL,
+    CONF_REASONING_EFFORT,
+    DEFAULT_MODEL,
+    DEFAULT_REASONING_EFFORT,
+    DOMAIN,
+    SUBENTRY_CONVERSATION,
+)
+from .entity import CodexBaseEntity
 from .runtime import CodexConfigEntry
 
 
@@ -20,21 +29,25 @@ async def async_setup_entry(
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up conversation entities."""
-    async_add_entities([CodexConversationEntity(config_entry)])
+    entities = [
+        CodexConversationEntity(config_entry, subentry)
+        for subentry in config_entry.subentries.values()
+        if subentry.subentry_type == SUBENTRY_CONVERSATION
+    ]
+    for entity in entities:
+        async_add_entities([entity], config_subentry_id=entity.subentry.subentry_id)
 
 
 class CodexConversationEntity(
-    conversation.ConversationEntity, conversation.AbstractConversationAgent
+    conversation.ConversationEntity,
+    conversation.AbstractConversationAgent,
+    CodexBaseEntity,
 ):
     """Codex conversation agent."""
 
-    _attr_has_entity_name = True
-    _attr_name = "Codex AI"
-
-    def __init__(self, entry: CodexConfigEntry) -> None:
+    def __init__(self, entry: CodexConfigEntry, subentry: ConfigSubentry) -> None:
         """Initialize the entity."""
-        self.entry = entry
-        self._attr_unique_id = f"{entry.entry_id}_conversation"
+        CodexBaseEntity.__init__(self, entry, subentry)
 
     @property
     def supported_languages(self) -> list[str] | Literal["*"]:

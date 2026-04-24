@@ -19,6 +19,7 @@ from homeassistant.helpers.selector import (
     TextSelector,
 )
 
+from . import default_subentries
 from .auth import (
     DeviceCode,
     exchange_code_for_tokens,
@@ -104,6 +105,7 @@ class CodexAIConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                             CONF_TTS_VOICE: DEFAULT_TTS_VOICE,
                             CONF_TTS_SPEED: DEFAULT_TTS_SPEED,
                         },
+                        subentries=default_subentries(),
                     )
             except Exception:
                 errors["base"] = "invalid_auth"

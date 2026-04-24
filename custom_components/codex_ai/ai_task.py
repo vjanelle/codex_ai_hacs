@@ -11,13 +11,21 @@ from openai.types.responses import EasyInputMessageParam, ResponseInputParam
 from voluptuous_openapi import convert
 
 from homeassistant.components import ai_task, conversation
+from homeassistant.config_entries import ConfigSubentry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.util.json import json_loads
 
 from .auth import is_supported_image_mime
-from .const import CONF_MODEL, CONF_REASONING_EFFORT, DEFAULT_MODEL, DEFAULT_REASONING_EFFORT
+from .const import (
+    CONF_MODEL,
+    CONF_REASONING_EFFORT,
+    DEFAULT_MODEL,
+    DEFAULT_REASONING_EFFORT,
+    SUBENTRY_AI_TASK,
+)
+from .entity import CodexBaseEntity
 from .runtime import CodexConfigEntry
 
 _LOGGER = logging.getLogger(__name__)
@@ -29,7 +37,13 @@ async def async_setup_entry(
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up AI Task entities."""
-    async_add_entities([CodexAITaskEntity(config_entry)])
+    entities = [
+        CodexAITaskEntity(config_entry, subentry)
+        for subentry in config_entry.subentries.values()
+        if subentry.subentry_type == SUBENTRY_AI_TASK
+    ]
+    for entity in entities:
+        async_add_entities([entity], config_subentry_id=entity.subentry.subentry_id)
 
 
 def _format_structure_schema(task: ai_task.GenDataTask) -> dict[str, Any] | None:
@@ -64,20 +78,17 @@ def _build_input(task: ai_task.GenDataTask) -> ResponseInputParam:
     return [EasyInputMessageParam(type="message", role="user", content=content)]
 
 
-class CodexAITaskEntity(ai_task.AITaskEntity):
+class CodexAITaskEntity(ai_task.AITaskEntity, CodexBaseEntity):
     """Codex AI Task entity."""
 
-    _attr_has_entity_name = True
-    _attr_name = "Codex AI Tasks"
     _attr_supported_features = (
         ai_task.AITaskEntityFeature.GENERATE_DATA
         | ai_task.AITaskEntityFeature.SUPPORT_ATTACHMENTS
     )
 
-    def __init__(self, entry: CodexConfigEntry) -> None:
+    def __init__(self, entry: CodexConfigEntry, subentry: ConfigSubentry) -> None:
         """Initialize the entity."""
-        self.entry = entry
-        self._attr_unique_id = f"{entry.entry_id}_ai_tasks"
+        CodexBaseEntity.__init__(self, entry, subentry)
 
     async def _async_generate_data(
         self,
