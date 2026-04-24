@@ -1,0 +1,22 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Codex AI",
+        "description": "Start ChatGPT device authorization for Codex AI."
+      },
+      "device": {
+        "title": "Authorize Codex AI",
+        "description": "Open {verification_url} and enter code {user_code}. Submit this form after authorization completes."
+      }
+    },
+    "error": {
+      "authorization_pending": "Authorization is not complete yet.",
+      "cannot_connect": "Cannot connect to OpenAI auth.",
+      "invalid_auth": "Authorization failed."
+    },
+    "abort": {
+      "already_configured": "This Codex account is already configured."
+    }
+  }
+}

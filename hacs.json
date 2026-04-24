@@ -1,0 +1,6 @@
+{
+  "name": "Codex AI",
+  "render_readme": true,
+  "domains": ["codex_ai"],
+  "homeassistant": "2026.4.0"
+}
